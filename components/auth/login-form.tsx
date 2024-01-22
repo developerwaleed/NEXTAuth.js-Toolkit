@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 export const LoginForm = () => {
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -53,22 +54,19 @@ export const LoginForm = () => {
             />
             <FormField
               control={form.control}
-              name="Password"
+              name="password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="******"
-                      type="password"
-                    />
+                    <Input {...field} placeholder="******" type="password" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
+          <Button type="submit" className="w-full">Login</Button>
         </form>
       </Form>
     </CardWrapper>
