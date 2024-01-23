@@ -1,16 +1,32 @@
-import NextAuth from "next-auth"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import authConfig from "./auth.config"
+import NextAuth from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import authConfig from "./auth.config";
 
-import { db } from "./lib/db"
+import { db } from "./lib/db";
 
 export const {
   handlers: { GET, POST },
   auth,
   signIn,
-  signOut
+  signOut,
 } = NextAuth({
+  callbacks: {
+    async session({ token, session }) {
+      console.log({
+        sessionToken: token,
+        session,
+      });
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+      }
+      return session;
+    },
+
+    async jwt({ token }) {
+      return token;
+    },
+  },
   adapter: PrismaAdapter(db),
-  session: {strategy: "jwt"},
+  session: { strategy: "jwt" },
   ...authConfig,
-})
+});
