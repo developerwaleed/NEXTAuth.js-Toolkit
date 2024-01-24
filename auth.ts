@@ -12,9 +12,15 @@ export const {
   auth,
   signIn,
   signOut,
-} = NextAuth({
+} = NextAuth({ 
+  events: { async linkAccount ({ user }){
+    await db.user.update({
+      where: { id:user.id},
+      data: { emailVerified: new Date()}
+    })
+  }},
   callbacks: {
-    async session({ token, session }) {
+    session: ({ session, token }: {session: any, token?: any}) => {
       console.log( {toke: token})
       if (token.sub && session.user) {
         session.user.id = token.sub;
