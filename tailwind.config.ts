@@ -52,6 +52,9 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        gradient: {
+          DEFAULT: 'linear-gradient(to right, #FF5733, #522218)',
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
