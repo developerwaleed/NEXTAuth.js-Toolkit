@@ -6,25 +6,37 @@ import { getUserById } from "./data/user";
 import { db } from "./lib/db";
 // import { UserRole } from "@prisma/client";
 
-
 export const {
   handlers: { GET, POST },
   auth,
   signIn,
   signOut,
-} = NextAuth({ 
-  pages:{
+} = NextAuth({
+  pages: {
     signIn: "/auth/login",
     error: "/auth/error",
   },
-  events: { async linkAccount ({ user }){
-    await db.user.update({
-      where: { id:user.id},
-      data: { emailVerified: new Date()}
-    })
-  }},
+  events: {
+    async linkAccount({ user }) {
+      await db.user.update({
+        where: { id: user.id },
+        data: { emailVerified: new Date() },
+      });
+    },
+  },
   callbacks: {
-    session: ({ session, token }: {session: any, token?: any}) => {
+    async signIn({ user, account }) {
+      // Allow OAuth without email verification
+      if (account?.provider !== "credentials") return true;
+
+      const existingUser = await getUserById(user.id);
+
+      // Prevent sign in without email verification
+      if (!existingUser?.emailVerified) return false;
+
+      return true;
+    },
+    session: ({ session, token }: { session: any; token?: any }) => {
       if (token.sub && session.user) {
         session.user.id = token.sub;
       }
