@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import authConfig from "./auth.config";
 import { getUserById } from "./data/user";
+import { getTwoFactorConfirmationByUserId } from "./data/two-factor-confirmation";
 
 import { db } from "./lib/db";
 // import { UserRole } from "@prisma/client";
@@ -24,6 +25,7 @@ export const {
       });
     },
   },
+
   callbacks: {
     async signIn({ user, account }) {
       // Allow OAuth without email verification
@@ -33,6 +35,20 @@ export const {
 
       // Prevent sign in without email verification
       if (!existingUser?.emailVerified) return false;
+
+      if (existingUser.isTwoFactorEnabled) {
+        const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(
+          existingUser.id
+        );
+
+        console.log("twoFactorConfirmation", twoFactorConfirmation);
+
+        if (!twoFactorConfirmation) return false;
+
+        await db.twoFactorConfirmation.delete({
+          where: { id: twoFactorConfirmation.id },
+        });
+      }
 
       return true;
     },
